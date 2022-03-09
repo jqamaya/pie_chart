@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+
+        <!-- jQuery library -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+
+        <!-- Popper JS -->
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+        <!-- Latest compiled JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Chart JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    </head>
+    <body class="container">
+        <h2>Pie Chart for Grade of Students</h2>
+        <hr/>
+        <h4>Input the number of students for each grade</h4>
+        <label>A</label>
+        <input id="gradeA" type="number" value="0" min="0" />
+        <label>B</label>
+        <input id="gradeB" type="number" value="0" min="0" />
+        <label>C</label>
+        <input id="gradeC" type="number" value="0" min="0" />
+        <br/>
+        <label>D</label>
+        <input id="gradeD" type="number" value="0" min="0" />
+        <label>F</label>
+        <input id="gradeF" type="number" value="0" min="0" />
+        
+        <button class="btn btn-light" onclick="drawChart()">Draw Chart</button>
+        
+        <div class="chart-container" style="position: relative; height:10vh; width:60vw">
+            <canvas id="myChart" style="width:50px; height:50px;"></canvas>
+        </div>
+
+        <script>
+            const CTX = document.getElementById('myChart').getContext('2d');
+            const CHART_COLORS = {
+                blue: 'rgb(0, 0, 255)',
+                green: 'rgb(0, 255, 0)',
+                yellow: 'rgb(255, 255, 0)',
+                red: 'rgb(255, 0, 0)',
+                orange: 'rgb(255, 0, 255)',
+            };
+            let grades = {
+                gradeA: 0,
+                gradeB: 0,
+                gradeC: 0,
+                gradeD: 0,
+                gradeF: 0,
+            };
+            let labels = {
+                gradeA: 'Grade A :percentage:% : blue',
+                gradeB: 'Grade B :percentage:% : green',
+                gradeC: 'Grade C :percentage:% : yellow',
+                gradeD: 'Grade D :percentage:% : magenta',
+                gradeF: 'Grade F :percentage:% : red',
+            };
+            let data = {
+                labels: [],
+                datasets: [
+                    {
+                        data: Object.values(grades),
+                        backgroundColor: Object.values(CHART_COLORS),
+                    }
+                ],
+            };
+            const CONFIG = {
+                type: 'pie',
+                data,
+                options: {
+                    plugins: {
+                        legend: {
+                            align: 'start',
+                            position: 'left',
+                        },
+                    }
+                },
+            };
+
+            function calculatePercentage(grade, total) {
+                if (total != 0) {
+                    return ((grade/total) * 100).toFixed(2);
+                }
+                return 0;
+            }
+
+            function generateData() {
+                grades.gradeA = parseInt(document.getElementById('gradeA').value);
+                grades.gradeB = parseInt(document.getElementById('gradeB').value);
+                grades.gradeC = parseInt(document.getElementById('gradeC').value);
+                grades.gradeD = parseInt(document.getElementById('gradeD').value);
+                grades.gradeF = parseInt(document.getElementById('gradeF').value);
+                // set the value to 0 if user input is negative
+                Object.keys(grades).forEach((key) => {
+                    if (grades[key] < 0)
+                        grades[key] = 0;
+                });
+            }
+
+            function generateLabels(totalStudents) {
+                for (const key of Object.keys(grades)) {
+                    labels[key] = labels[key].replace(':percentage:', calculatePercentage(grades[key], totalStudents));
+                }
+            }
+
+            let chart = new Chart(CTX, CONFIG);
+            function drawChart() {
+                generateData();
+                let totalStudents = Object.values(grades).reduce((a, b) => a + b);
+                generateLabels(totalStudents);
+                chart.data.labels = Object.values(labels);
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data = Object.values(grades);
+                });
+                chart.update();
+            }
+        </script>
+    </body>
+</html>
